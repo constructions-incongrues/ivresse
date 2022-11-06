@@ -1,0 +1,42 @@
+version: '3'
+
+networks:
+  default:
+    internal: true
+  public:
+    external:
+      name: net-pastis-hosting-docker_public
+
+services:
+  cache:
+    container_name: cache
+    image: redis:6
+    networks:
+      - default
+
+  directus:
+    container_name: directus
+    image: directus/directus:9.20.4
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # volumes:
+    #   # By default, uploads are stored in /directus/uploads
+    #   # Always make sure your volumes matches the storage root when using
+    #   # local driver
+    #   - ./uploads:/directus/uploads
+    #   # Make sure to also mount the volume when using SQLite
+    #   # - ./database:/directus/database
+    #   # If you want to load extensions from the host
+    #   # - ./extensions:/directus/extensions
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=net-pastis-hosting-docker_public"
+      - "traefik.http.routers.musiques-incongrues-api.entrypoints=http"
+      - "traefik.http.routers.musiques-incongrues-api.rule=Host(`api.musiques-incongrues.net`)"
+    networks:
+      - default
+      - public
+    depends_on:
+      - cache
+    restart: unless-stopped
+    env_file: .env
