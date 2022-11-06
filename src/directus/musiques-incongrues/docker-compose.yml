@@ -9,13 +9,11 @@ networks:
 
 services:
   cache:
-    container_name: cache
     image: redis:6
     networks:
       - default
 
   directus:
-    container_name: directus
     image: directus/directus:9.20.4
     extra_hosts:
       - "host.docker.internal:host-gateway"
